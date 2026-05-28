@@ -1,82 +1,90 @@
 import type { DrillCard, WeakBigram } from "./types";
 
-// A bank of common English words used to synthesise realistic typing material.
-const WORD_BANK =
-  `the be to of and a in that have it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us are the and that have with this from`
-    .split(/\s+/)
-    .filter(Boolean);
+// A bank of common English words. Practice and drills are always built from
+// these real words — we never synthesise random letter combinations.
+const WORD_BANK = `the of and to a in is it you that he was for on are with as his they at be this from i have or by one had not but what all were when we there can an your which their said if do will each about how up out them then she many some so these would other into has more her two like him see time could no make than first been its who now people my made over did down only way find use may water long little very after words called just where most know get through back much before go good new write our used me man too any day same right look think also around another came come work three must because does part even place well such here take why help put different away again off went old number great tell men say small every found still between name should home big give air line set own under read last never us left end along while might next sound below saw something thought both few those always looked show large often together asked house don world going want school important until form food keep children feet land side without boy once animal life enough took sometimes four head above kind began almost live page got earth need far hand high year mother light parts country father let night following picture being study second eye soon times story boys since white days ever paper hard near sentence better best across during today others however sure means knew it`
+  .split(/\s+/)
+  .filter((w) => w.length > 0);
 
-const FALLBACK_VOWELS = ["a", "e", "i", "o", "u"];
+// Pre-compute lowercase, de-duplicated word list.
+const WORDS = Array.from(new Set(WORD_BANK.map((w) => w.toLowerCase())));
 
-/** Common pangrams / clean sentences used when there is no error profile yet. */
-const STARTER_TEXTS = [
-  "the quick brown fox jumps over the lazy dog",
-  "pack my box with five dozen liquor jugs",
-  "how vexingly quick daft zebras jump",
-  "the five boxing wizards jump quickly",
-  "we promptly judged antique ivory buckles",
-];
-
-function uniqueWordsContaining(bigram: string, limit: number): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const w of WORD_BANK) {
-    if (w.includes(bigram) && !seen.has(w)) {
-      seen.add(w);
-      out.push(w);
-      if (out.length >= limit) break;
-    }
-  }
-  return out;
+function randItem<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/** Build a clean, typeable practice line that hammers a single bigram. */
-export function generateDrillText(bigram: string, words = 14): string {
-  const real = uniqueWordsContaining(bigram, words);
-  const tokens: string[] = [];
+function wordsContaining(fragment: string): string[] {
+  return WORDS.filter((w) => w.includes(fragment));
+}
 
-  // Lead with short bursts of the raw bigram to build muscle memory.
-  tokens.push(bigram, bigram, bigram);
-
-  if (real.length >= 4) {
-    for (let i = 0; i < words; i++) tokens.push(real[i % real.length]);
-  } else {
-    // Rare bigram: synthesise simple syllables around it.
-    for (let i = 0; i < words; i++) {
-      const v = FALLBACK_VOWELS[i % FALLBACK_VOWELS.length];
-      tokens.push(i % 2 === 0 ? `${bigram}${v}` : `${v}${bigram}`);
-    }
-  }
-  return tokens.join(" ");
+/** Only letter-pair bigrams make sense as a typing focus. */
+function usableBigrams(weak: WeakBigram[]): string[] {
+  return weak.map((w) => w.bigram.toLowerCase()).filter((bg) => /^[a-z]{2}$/.test(bg));
 }
 
 /**
- * Build a practice line. When weak bigrams are known, the text is biased toward
- * words that exercise them (keybr-style targeted practice); otherwise a clean
- * starter sentence is used.
+ * Build a practice line out of REAL words. When weak bigrams are known the word
+ * selection is biased toward words that exercise them, but every token is
+ * always a genuine word — never a synthetic syllable.
  */
-export function generatePracticeText(weak: WeakBigram[] = []): string {
-  if (weak.length === 0) {
-    return STARTER_TEXTS[Math.floor(Math.random() * STARTER_TEXTS.length)];
+export function generatePracticeText(weak: WeakBigram[] = [], words = 14): string {
+  const focus = usableBigrams(weak).slice(0, 6);
+  const out: string[] = [];
+  let last = "";
+
+  for (let i = 0; i < words; i++) {
+    let word: string | undefined;
+
+    // ~65% of the time, target a weak bigram (if any matching words exist).
+    if (focus.length > 0 && Math.random() < 0.65) {
+      const matches = wordsContaining(randItem(focus));
+      if (matches.length > 0) word = randItem(matches);
+    }
+    if (!word) word = randItem(WORDS);
+
+    // Avoid an immediate repeat for nicer-reading lines.
+    if (word === last && WORDS.length > 1) {
+      i--;
+      continue;
+    }
+    out.push(word);
+    last = word;
   }
 
-  const focus = weak.slice(0, 4).map((w) => w.bigram);
-  const tokens: string[] = [];
-  let guard = 0;
-  while (tokens.length < 16 && guard < 200) {
-    guard++;
-    const bg = focus[Math.floor(Math.random() * focus.length)];
-    const matches = uniqueWordsContaining(bg, 8);
-    if (matches.length > 0) {
-      tokens.push(matches[Math.floor(Math.random() * matches.length)]);
+  return out.join(" ");
+}
+
+/**
+ * Build a drill line for a single bigram out of real words that contain it,
+ * padded with common words if the bigram is rare. No raw bigram bursts, no
+ * synthetic syllables.
+ */
+export function generateDrillText(bigram: string, words = 14): string {
+  const bg = bigram.toLowerCase();
+  const matches = [...wordsContaining(bg)];
+  // shuffle matches for variety
+  for (let i = matches.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [matches[i], matches[j]] = [matches[j], matches[i]];
+  }
+
+  const out: string[] = [];
+  let last = "";
+  for (let i = 0; i < words; i++) {
+    let word: string;
+    if (matches.length > 0 && (Math.random() < 0.7 || out.length < 2)) {
+      word = matches[i % matches.length];
     } else {
-      tokens.push(bg + FALLBACK_VOWELS[tokens.length % FALLBACK_VOWELS.length]);
+      word = randItem(WORDS);
     }
+    if (word === last && WORDS.length > 1) {
+      i--;
+      continue;
+    }
+    out.push(word);
+    last = word;
   }
-  if (tokens.length === 0) {
-    return STARTER_TEXTS[Math.floor(Math.random() * STARTER_TEXTS.length)];
-  }
-  return tokens.join(" ");
+  return out.join(" ");
 }
 
 export function generateDrillsFromWeakBigrams(
