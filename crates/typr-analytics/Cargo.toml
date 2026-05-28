@@ -1,0 +1,11 @@
+[package]
+name = "typr-analytics"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+typr-db = { path = "../typr-db" }
+rusqlite = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

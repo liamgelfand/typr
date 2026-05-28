@@ -1,0 +1,14 @@
+[package]
+name = "typr-capture"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+typr-db = { path = "../typr-db" }
+typr-analytics = { path = "../typr-analytics" }
+rdev = { workspace = true }
+serde = { workspace = true }
+parking_lot = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+active-win-pos-rs = "0.8"

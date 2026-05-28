@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/typr-db",
+    "crates/typr-capture",
+    "crates/typr-analytics",
+    "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+parking_lot = "0.12"
+rdev = "0.5"
