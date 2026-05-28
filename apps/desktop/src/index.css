@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace,
+    "Menlo", monospace;
+
+  font-family: var(--font-sans);
+  color: #e7e9ee;
+  background-color: #0a0b0f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(900px 600px at 100% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, rgba(139, 92, 246, 0.1), transparent 55%),
+    #0a0b0f;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+}
+
+/* Slim, unobtrusive scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2e3a transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2a2e3a;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #3a3f4d;
+  background-clip: content-box;
+}
+
+/* ---- Typing surface ---- */
+.typing-surface {
+  font-family: var(--font-mono);
+  letter-spacing: 0.01em;
+  line-height: 1.9;
+  outline: none;
+  cursor: text;
+  user-select: none;
+}
+
+.typing-char {
+  position: relative;
+  transition: color 90ms ease;
+}
+
+.typing-char--pending {
+  color: #4b5161;
+}
+.typing-char--done {
+  color: #e7e9ee;
+}
+.typing-char--error {
+  color: #fb7185;
+  background: rgba(251, 113, 133, 0.14);
+  border-radius: 3px;
+}
+
+/* Blinking caret on the active character */
+.typing-char--active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 8%;
+  bottom: 8%;
+  width: 2px;
+  border-radius: 2px;
+  background: #818cf8;
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+.typing-char--active.is-wrong::before {
+  background: #fb7185;
+  animation: none;
+}
+
+@keyframes caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.animate-shake {
+  animation: shake 160ms ease-in-out;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 220ms ease-out both;
+}

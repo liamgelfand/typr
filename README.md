@@ -4,11 +4,13 @@ Personal typing coach that learns from your keystrokes **locally** and builds cu
 
 ## Features
 
-- System-wide keystroke capture (Rust + `rdev`) with privacy blocklist
-- Backspace-correction and practice-mode error inference
-- Dashboard with keyboard heatmap, slow bigrams, session trends
-- Spaced-repetition drills (SM-2) generated from your error profile
-- Export / delete all data — nothing leaves your machine by default
+- **Native desktop app** (Tauri) — download an installer, no browser or server involved
+- System-wide keystroke capture (Rust + `rdev`) that **starts automatically** with a privacy blocklist; pause/disable anytime
+- Passive backspace-correction inference *and* keybr-style practice that validates **every keystroke** (a wrong key is counted immediately and can't be "deleted away")
+- Practice and drills **auto-grade and auto-advance** — no submit button, no self-rating
+- Dashboard with keyboard heatmap, slow bigrams, and session trends
+- Spaced-repetition drills (SM-2) generated and scheduled automatically from your error profile
+- Export / delete all data — nothing leaves your machine
 
 ## Stack
 
@@ -18,7 +20,24 @@ Personal typing coach that learns from your keystrokes **locally** and builds cu
 | Capture | `typr-capture` (rdev, active-win) |
 | Database | SQLite (`typr-db`) |
 | Analytics | `typr-analytics` |
-| Drills | `drill-engine` (TypeScript SM-2) |
+| Drills | SM-2 spaced repetition (in the desktop app, `src/drill-engine.ts`) |
+
+## Install (end users)
+
+Typr is a **native desktop application**, not a web app — there is no localhost
+or server to run. Grab the installer for your platform from the
+[Releases](../../releases) page:
+
+| Platform | Artifact |
+|----------|----------|
+| Windows | `.msi` / `.exe` |
+| macOS | `.dmg` (Apple Silicon & Intel) |
+| Linux | `.AppImage` / `.deb` |
+
+Releases are built automatically by `.github/workflows/release.yml` whenever a
+`v*` tag is pushed. (The `http://localhost:1420` URL you may see only exists
+while *developing* — it's the Vite dev server that Tauri loads into the native
+window. Production builds bundle the UI directly into the app.)
 
 ## Development (WSL Ubuntu — recommended)
 
@@ -58,7 +77,6 @@ typr/
 │   ├── typr-capture/   # Global keyboard listener
 │   ├── typr-db/        # SQLite schema & queries
 │   └── typr-analytics/ # Error inference & rollups
-├── packages/drill-engine/
 └── docs/               # privacy.md, threat-model.md
 ```
 
