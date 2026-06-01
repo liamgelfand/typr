@@ -2,6 +2,7 @@
 name = "typr-desktop"
 version.workspace = true
 edition.workspace = true
+description = "Typr — personal typing coach"
 
 [lib]
 name = "typr_desktop_lib"

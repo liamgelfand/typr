@@ -4680,7 +4680,7 @@ checksum = "40ce102ab67701b8526c123c1bab5cbe42d7040ccfd0f64af1a385808d2f43de"
 
 [[package]]
 name = "typr-analytics"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "rusqlite",
  "serde",
@@ -4691,7 +4691,7 @@ dependencies = [
 
 [[package]]
 name = "typr-capture"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "active-win-pos-rs",
  "parking_lot",
@@ -4705,7 +4705,7 @@ dependencies = [
 
 [[package]]
 name = "typr-db"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "rusqlite",
@@ -4716,7 +4716,7 @@ dependencies = [
 
 [[package]]
 name = "typr-desktop"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "dirs",
