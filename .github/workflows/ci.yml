@@ -87,9 +87,13 @@ jobs:
 
       - name: Build Tauri app
         working-directory: apps/desktop
+        # CI is a build smoke-test only. The src-tauri/tauri.ci.conf.json
+        # override disables updater artifacts so the build doesn't try to sign
+        # them (signing/publishing is release.yml's job, which is the only
+        # workflow with the private signing key).
         run: |
           npm install
-          npm run tauri build
+          npm run tauri build -- --config src-tauri/tauri.ci.conf.json
 
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
