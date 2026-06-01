@@ -17,10 +17,11 @@ jobs:
         include:
           - platform: ubuntu-latest
           - platform: windows-latest
-          - platform: macos-latest # Apple Silicon
-            args: "--target aarch64-apple-darwin"
-          - platform: macos-13 # Intel
-            args: "--target x86_64-apple-darwin"
+          # One macOS job builds a universal binary that runs natively on both
+          # Apple Silicon and Intel. Avoids the scarce/deprecated macos-13 Intel
+          # runners (long queue waits) and the flaky bundle_dmg.sh on them.
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
