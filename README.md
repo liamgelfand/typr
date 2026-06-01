@@ -39,6 +39,11 @@ Releases are built automatically by `.github/workflows/release.yml` whenever a
 while *developing* — it's the Vite dev server that Tauri loads into the native
 window. Production builds bundle the UI directly into the app.)
 
+**You only download once.** Typr auto-updates: on launch it checks GitHub
+Releases for a newer signed build and offers to install it in-app — no manual
+re-download. See [docs/signing.md](docs/signing.md) for the maintainer setup
+(signing keys + how to cut an update).
+
 ## Development (WSL Ubuntu — recommended)
 
 The canonical dev environment is **WSL2** with the repo at `~/projects/typr` (Linux filesystem, not `/mnt/c`).

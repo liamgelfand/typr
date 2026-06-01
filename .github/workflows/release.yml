@@ -54,11 +54,17 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Required for signed auto-updates. Add these in repo Settings →
+          # Secrets and variables → Actions. Without TAURI_SIGNING_PRIVATE_KEY
+          # the build won't produce signatures and the updater won't work.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
           releaseName: "Typr ${{ github.ref_name }}"
-          releaseBody: "Download the installer for your platform below."
+          releaseBody: "Download the installer for your platform below. Existing installs will update automatically."
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: true
           args: ${{ matrix.args }}

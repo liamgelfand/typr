@@ -27,9 +27,19 @@ fn on_pause_hotkey(
 pub fn run() {
     let db_path = db_dir().join("typr.db");
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build());
+
+    // In-app auto-update (desktop only).
+    #[cfg(desktop)]
+    {
+        builder = builder
+            .plugin(tauri_plugin_updater::Builder::new().build())
+            .plugin(tauri_plugin_process::init());
+    }
+
+    builder
         .setup(|app| {
             let state = AppState::new(db_path)?;
             app.manage(state);
