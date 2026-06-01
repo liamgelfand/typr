@@ -42,7 +42,11 @@ GitHub Releases on launch, and if a newer **signed** build exists it offers
 2. In GitHub: **Settings → Secrets and variables → Actions → New repository
    secret**:
    - `TAURI_SIGNING_PRIVATE_KEY` = the full contents of `~/.tauri/typr-updater.key`
-   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` = the key password (empty if none)
+   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — **skip this**. Our key has no
+     password, and GitHub rejects empty secret values. The workflow reference
+     resolves to an empty string when the secret is absent, which is correct
+     for a no-password key. (Only create it if you later regenerate the key
+     *with* a password.)
 
 ### Cutting an update that users actually receive
 
