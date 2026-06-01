@@ -3,7 +3,7 @@
   "productName": "Typr",
   "mainBinaryName": "Typr",
   "version": "0.2.0",
-  "identifier": "com.typr.app",
+  "identifier": "com.typr.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
