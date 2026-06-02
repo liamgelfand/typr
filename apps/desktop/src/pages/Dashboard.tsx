@@ -108,21 +108,38 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <Card title="Weak bigrams">
+      <Card
+        title="Weak letter-pairs (bigrams)"
+        hint="A bigram is just two letters typed back-to-back, like “th” or “er”. These are the pairs you miss most: the percentage is how often you mistype the pair, and “N of M” is misses out of total attempts. Lower is better."
+      >
         {profile?.weak_bigrams.length ? (
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {profile.weak_bigrams.map((w) => (
-              <div
-                key={w.bigram}
-                className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm"
-              >
-                <span className="font-mono text-indigo-300">{w.bigram}</span>
-                <span className="text-slate-400">
-                  {(w.error_rate * 100).toFixed(0)}% · {w.error_count}
-                </span>
-              </div>
-            ))}
-          </div>
+          <>
+            <p className="mb-3 text-xs text-slate-500">
+              Pairs you get wrong most often. “th — 12% · 3 of 25” means: when
+              the pair <span className="font-mono text-slate-400">th</span> came
+              up 25 times, you mistyped it 3 times (12%).
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {profile.weak_bigrams.map((w) => (
+                <div
+                  key={w.bigram}
+                  className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm"
+                >
+                  <span className="font-mono text-base text-indigo-300">
+                    {w.bigram}
+                  </span>
+                  <span className="text-right">
+                    <span className="block font-semibold text-rose-300">
+                      {(w.error_rate * 100).toFixed(0)}% missed
+                    </span>
+                    <span className="block text-xs text-slate-500">
+                      {w.error_count} of {w.attempt_count} tries
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <Empty>
             No error patterns yet — type for a while, or run a few Practice
