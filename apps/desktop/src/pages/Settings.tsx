@@ -7,6 +7,7 @@ export function Settings() {
   const [blocklist, setBlocklist] = useState<string[]>([]);
   const [newPattern, setNewPattern] = useState("");
   const [exportJson, setExportJson] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     api.getCaptureStatus().then(setCapture);
@@ -33,8 +34,40 @@ export function Settings() {
     setBlocklist(await api.getBlocklist());
   }
 
-  async function handleExport() {
-    setExportJson(await api.exportData());
+  async function handlePreview() {
+    setExportJson(exportJson ? null : await api.exportData());
+  }
+
+  async function handleCopy() {
+    const json = await api.exportData();
+    try {
+      await navigator.clipboard.writeText(json);
+    } catch {
+      // Fallback for webviews that block the async clipboard API.
+      const ta = document.createElement("textarea");
+      ta.value = json;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleDownload() {
+    const json = await api.exportData();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `typr-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   async function handleDelete() {
@@ -109,16 +142,33 @@ export function Settings() {
       </Section>
 
       <Section title="Your data">
-        <div className="flex gap-2">
+        <p className="mb-3 text-sm text-slate-400">
+          Export everything Typr has learned — bigram stats, sessions and your
+          blocklist — as a single JSON file. It never leaves this device unless
+          you share it.
+        </p>
+        <div className="flex flex-wrap gap-2">
           <button
-            onClick={handleExport}
+            onClick={handleCopy}
             className="rounded-xl border border-white/10 px-4 py-2 text-sm transition hover:bg-white/5"
           >
-            Export JSON
+            {copied ? "Copied!" : "Copy to clipboard"}
+          </button>
+          <button
+            onClick={handleDownload}
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm transition hover:bg-white/5"
+          >
+            Download .json
+          </button>
+          <button
+            onClick={handlePreview}
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm transition hover:bg-white/5"
+          >
+            {exportJson ? "Hide preview" : "Preview"}
           </button>
           <button
             onClick={handleDelete}
-            className="rounded-xl border border-rose-500/30 px-4 py-2 text-sm text-rose-400 transition hover:bg-rose-500/10"
+            className="ml-auto rounded-xl border border-rose-500/30 px-4 py-2 text-sm text-rose-400 transition hover:bg-rose-500/10"
           >
             Delete all data
           </button>
