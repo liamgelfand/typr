@@ -26,9 +26,9 @@ interface Props {
 
 /**
  * keybr-style typing surface: validates every keystroke as it happens. A wrong
- * key is counted as an error immediately and does NOT advance the cursor — the
- * only way forward is to press the correct key, so "delete and retry" can never
- * erase a mistake.
+ * key turns the current letter red, counts as an error, and does NOT advance —
+ * you must press the correct key to move on (backspace is ignored). Focus stays
+ * on the box the whole time so you never have to click again mid-line.
  */
 export function TypingTest({ text, onComplete, label }: Props) {
   const chars = useMemo(() => Array.from(text), [text]);
@@ -36,7 +36,6 @@ export function TypingTest({ text, onComplete, label }: Props) {
   const [pos, setPos] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [liveErrors, setLiveErrors] = useState(0);
-  const [shakeKey, setShakeKey] = useState(0);
   const [focused, setFocused] = useState(false);
 
   const startRef = useRef<number | null>(null);
@@ -49,13 +48,21 @@ export function TypingTest({ text, onComplete, label }: Props) {
     setPos(0);
     setWrong(false);
     setLiveErrors(0);
-    setShakeKey(0);
     startRef.current = null;
     keystrokesRef.current = 0;
     missesRef.current = [];
     doneRef.current = false;
     surfaceRef.current?.focus();
   }, [text]);
+
+  /** Replay the shake CSS without remounting the surface (remounting drops focus). */
+  const playShake = useCallback(() => {
+    const el = surfaceRef.current;
+    if (!el) return;
+    el.classList.remove("animate-shake");
+    void el.offsetWidth;
+    el.classList.add("animate-shake");
+  }, []);
 
   const finish = useCallback(() => {
     if (doneRef.current) return;
@@ -106,10 +113,10 @@ export function TypingTest({ text, onComplete, label }: Props) {
         });
         setLiveErrors((n) => n + 1);
         setWrong(true);
-        setShakeKey((k) => k + 1);
+        playShake();
       }
     },
-    [chars, pos, finish]
+    [chars, pos, finish, playShake]
   );
 
   const progress = chars.length > 0 ? Math.round((pos / chars.length) * 100) : 0;
@@ -140,13 +147,12 @@ export function TypingTest({ text, onComplete, label }: Props) {
 
       <div
         ref={surfaceRef}
-        key={shakeKey}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className={`typing-surface relative rounded-2xl border bg-slate-900/60 p-7 text-2xl shadow-2xl backdrop-blur transition ${
-          wrong ? "animate-shake border-rose-500/40" : "border-white/10"
+          wrong ? "border-rose-500/40" : "border-white/10"
         } ${focused ? "ring-2 ring-indigo-500/40" : ""}`}
         style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
       >

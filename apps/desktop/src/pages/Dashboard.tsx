@@ -288,7 +288,7 @@ function Card({
 function InfoDot({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex">
-      <span className="flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-slate-400 transition group-hover:border-indigo-400/60 group-hover:text-indigo-300">
+      <span className="flex h-4 w-4 cursor-default items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-slate-400 transition group-hover:border-indigo-400/60 group-hover:text-indigo-300">
         i
       </span>
       <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/95 p-3 text-xs leading-relaxed text-slate-300 opacity-0 shadow-2xl backdrop-blur transition-opacity duration-150 group-hover:opacity-100">
