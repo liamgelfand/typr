@@ -16,6 +16,7 @@ export interface WeakBigram {
   bigram: string;
   error_rate: number;
   error_count: number;
+  attempt_count: number;
 }
 
 export interface ErrorProfile {

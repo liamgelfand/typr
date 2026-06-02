@@ -13,6 +13,7 @@ pub struct WeakBigram {
     pub bigram: String,
     pub error_rate: f64,
     pub error_count: i64,
+    pub attempt_count: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,6 +39,7 @@ impl ErrorProfile {
                     0.0
                 },
                 error_count: s.error_count,
+                attempt_count: s.attempt_count,
             })
             .collect();
 

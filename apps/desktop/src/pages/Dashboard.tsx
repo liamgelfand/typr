@@ -30,13 +30,6 @@ export function Dashboard() {
     setEventCount(await api.getEventCount());
   }
 
-  const errorByChar: Record<string, number> = {};
-  profile?.weak_bigrams.forEach((w) => {
-    for (const c of w.bigram) {
-      errorByChar[c] = Math.max(errorByChar[c] ?? 0, w.error_rate);
-    }
-  });
-
   const slowData =
     profile?.slow_bigrams
       .filter((b) => b.delay_p50_ms != null)
@@ -82,8 +75,11 @@ export function Dashboard() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card title="Error heatmap">
-          <KeyboardHeatmap errorByChar={errorByChar} />
+        <Card
+          title="Error heatmap"
+          hint="Each key is shaded by how often it shows up in the letter-pairs you mistype. Hover any key to see its miss rate and the exact pairs behind it."
+        >
+          <KeyboardHeatmap bigrams={profile?.weak_bigrams ?? []} />
         </Card>
 
         <Card title="Slowest bigrams (p50 delay)">
@@ -183,12 +179,36 @@ function Kpi({
   );
 }
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+function Card({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
-      <h3 className="mb-4 text-sm font-semibold text-slate-300">{title}</h3>
+      <div className="mb-4 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-slate-300">{title}</h3>
+        {hint && <InfoDot text={hint} />}
+      </div>
       {children}
     </section>
+  );
+}
+
+function InfoDot({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-flex">
+      <span className="flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-slate-400 transition group-hover:border-indigo-400/60 group-hover:text-indigo-300">
+        i
+      </span>
+      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/95 p-3 text-xs leading-relaxed text-slate-300 opacity-0 shadow-2xl backdrop-blur transition-opacity duration-150 group-hover:opacity-100">
+        {text}
+      </span>
+    </span>
   );
 }
 
