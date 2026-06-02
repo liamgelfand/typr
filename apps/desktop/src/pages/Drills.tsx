@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { PracticeVsDrills } from "../components/PracticeVsDrills";
 import { TypingTest, type TypingRunResult } from "../components/TypingTest";
 import {
   generateDrillsFromWeakBigrams,
@@ -78,9 +79,10 @@ export function Drills() {
 
   if (!card) {
     return (
-      <div className="mx-auto max-w-xl space-y-5 text-center">
+      <div className="mx-auto max-w-3xl space-y-5">
         <h2 className="text-3xl font-bold tracking-tight">Drills</h2>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-10">
+        <PracticeVsDrills active="drill" />
+        <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-10 text-center">
           <p className="text-slate-300">No drills due right now. 🎉</p>
           <p className="mt-2 text-sm text-slate-500">
             Drills are generated from your weak bigrams. Do a few Practice rounds
@@ -103,8 +105,9 @@ export function Drills() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Drills</h2>
           <p className="mt-1 text-sm text-slate-400">
-            Spaced-repetition drills targeting your weak keys. We grade each run
-            automatically — just type.
+            Flashcard-style review: each card hammers one specific weak pair,
+            and how well you type it decides when that pair comes back. We grade
+            every run automatically — just type.
           </p>
         </div>
         <div className="text-right text-xs text-slate-500">
@@ -119,6 +122,8 @@ export function Drills() {
           </p>
         </div>
       </header>
+
+      <PracticeVsDrills active="drill" />
 
       <TypingTest
         key={`${index}-${card.id}`}

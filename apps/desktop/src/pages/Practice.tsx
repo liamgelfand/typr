@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { PracticeVsDrills } from "../components/PracticeVsDrills";
 import { RoundReview } from "../components/RoundReview";
 import { TypingTest, type TypingRunResult } from "../components/TypingTest";
 import { generatePracticeText } from "../drill-engine";
@@ -65,6 +66,8 @@ export function Practice() {
           must hit the right key to move on — no take-backs.
         </p>
       </header>
+
+      <PracticeVsDrills active="practice" />
 
       {latest && (
         <ScoreBar latest={latest.stats} prev={prev?.stats ?? null} round={history.length} />
