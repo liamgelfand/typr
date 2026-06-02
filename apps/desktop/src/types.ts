@@ -47,6 +47,7 @@ export interface TypingMiss {
   prev: string | null;
   expected: string;
   typed: string;
+  index?: number;
 }
 
 export interface TypingRun {

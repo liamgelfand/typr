@@ -4,6 +4,8 @@ export interface TypingMiss {
   prev: string | null;
   expected: string;
   typed: string;
+  /** Index in the target text where the miss happened (for review highlighting). */
+  index: number;
 }
 
 export interface TypingRunResult {
@@ -100,6 +102,7 @@ export function TypingTest({ text, onComplete, label }: Props) {
           prev: pos > 0 ? chars[pos - 1] : null,
           expected,
           typed: key,
+          index: pos,
         });
         setLiveErrors((n) => n + 1);
         setWrong(true);
