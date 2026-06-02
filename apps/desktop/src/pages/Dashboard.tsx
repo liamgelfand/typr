@@ -148,7 +148,10 @@ export function Dashboard() {
         )}
       </Card>
 
-      <Card title="Session activity">
+      <Card
+        title="Keystrokes captured per day"
+        hint="An “event” is a single keystroke recorded by passive capture in the background. This chart sums those keystrokes by day. Practice and drill rounds are graded live and don’t add to this count — see the session log below for those."
+      >
         {sessionChart.length === 0 ? (
           <Empty>No sessions recorded yet.</Empty>
         ) : (
@@ -158,6 +161,7 @@ export function Dashboard() {
               <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip
                 cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                formatter={(v: number) => [v.toLocaleString(), "keystrokes"]}
                 contentStyle={{
                   background: "#0f1320",
                   border: "1px solid rgba(255,255,255,0.1)",
@@ -169,8 +173,73 @@ export function Dashboard() {
           </ResponsiveContainer>
         )}
       </Card>
+
+      <Card
+        title="Session log"
+        hint="Every recording or practice session, newest first. Passive sessions count keystrokes captured in the background; Practice and Drill rows show how long the round took."
+      >
+        {sessions.length === 0 ? (
+          <Empty>No sessions yet.</Empty>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {sessions.slice(0, 12).map((s) => (
+              <SessionRow key={s.id} session={s} />
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
+}
+
+function SessionRow({ session }: { session: SessionSummary }) {
+  const start = new Date(session.started_at * 1000);
+  const durationMs =
+    session.ended_at != null ? (session.ended_at - session.started_at) * 1000 : null;
+
+  const type = sessionTypeMeta(session.session_type);
+
+  return (
+    <div className="flex items-center justify-between py-2.5 text-sm">
+      <div className="flex items-center gap-3">
+        <span
+          className={`rounded-md px-2 py-0.5 text-xs font-medium ${type.className}`}
+        >
+          {type.label}
+        </span>
+        <span className="text-slate-400">
+          {start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}{" "}
+          {start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+        </span>
+      </div>
+      <div className="text-right text-xs text-slate-500">
+        {session.session_type === "passive" ? (
+          <span>{session.event_count.toLocaleString()} keystrokes</span>
+        ) : (
+          <span>{formatDuration(durationMs)}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function sessionTypeMeta(type: string): { label: string; className: string } {
+  switch (type) {
+    case "practice":
+      return { label: "Practice", className: "bg-indigo-500/15 text-indigo-300" };
+    case "drill":
+      return { label: "Drill", className: "bg-violet-500/15 text-violet-300" };
+    default:
+      return { label: "Passive", className: "bg-emerald-500/15 text-emerald-300" };
+  }
+}
+
+function formatDuration(ms: number | null): string {
+  if (ms == null || ms <= 0) return "—";
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  return `${m}m ${s % 60}s`;
 }
 
 function Kpi({
