@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -62,7 +62,7 @@ export function Dashboard() {
     <div className="space-y-7">
       <header>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Your typing profile, built locally from passive capture and practice.
         </p>
       </header>
@@ -94,14 +94,15 @@ export function Dashboard() {
                 <XAxis dataKey="bigram" tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  cursor={{ fill: "rgba(34,197,94,0.06)" }}
                   contentStyle={{
-                    background: "#0f1320",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "#0d1a14",
+                    border: "1px solid rgba(42,80,56,0.7)",
                     borderRadius: 12,
+                    color: "#d4ede0",
                   }}
                 />
-                <Bar dataKey="ms" fill="#34d399" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="ms" fill="#22c55e" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -114,7 +115,7 @@ export function Dashboard() {
       >
         {profile?.weak_bigrams.length ? (
           <>
-            <p className="mb-3 text-xs text-slate-500">
+            <p className="mb-3 text-xs" style={{ color: "var(--text-muted)" }}>
               Pairs you get wrong most often. “th — 12% · 3 of 25” means: when
               the pair <span className="font-mono text-slate-400">th</span> came
               up 25 times, you mistyped it 3 times (12%).
@@ -125,14 +126,14 @@ export function Dashboard() {
                   key={w.bigram}
                   className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-sm"
                 >
-                  <span className="font-mono text-base text-indigo-300">
+                  <span className="font-mono text-base" style={{ color: "var(--accent)" }}>
                     {w.bigram}
                   </span>
                   <span className="text-right">
-                    <span className="block font-semibold text-rose-300">
+                    <span className="block font-semibold" style={{ color: "var(--char-error)" }}>
                       {(w.error_rate * 100).toFixed(0)}% missed
                     </span>
-                    <span className="block text-xs text-slate-500">
+                    <span className="block text-xs" style={{ color: "var(--text-muted)" }}>
                       {w.error_count} of {w.attempt_count} tries
                     </span>
                   </span>
@@ -160,15 +161,16 @@ export function Dashboard() {
               <XAxis dataKey="label" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip
-                cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                cursor={{ fill: "rgba(34,197,94,0.06)" }}
                 formatter={(v: number) => [v.toLocaleString(), "keystrokes"]}
                 contentStyle={{
-                  background: "#0f1320",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "#0d1a14",
+                  border: "1px solid rgba(42,80,56,0.7)",
                   borderRadius: 12,
+                  color: "#d4ede0",
                 }}
               />
-              <Bar dataKey="events" fill="#818cf8" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="events" fill="#16a34a" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -203,16 +205,17 @@ function SessionRow({ session }: { session: SessionSummary }) {
     <div className="flex items-center justify-between py-2.5 text-sm">
       <div className="flex items-center gap-3">
         <span
-          className={`rounded-md px-2 py-0.5 text-xs font-medium ${type.className}`}
+          className="rounded-md px-2 py-0.5 text-xs font-medium"
+          style={type.style}
         >
           {type.label}
         </span>
-        <span className="text-slate-400">
+        <span style={{ color: "var(--text-secondary)" }}>
           {start.toLocaleDateString(undefined, { month: "short", day: "numeric" })}{" "}
           {start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
         </span>
       </div>
-      <div className="text-right text-xs text-slate-500">
+      <div className="text-right text-xs" style={{ color: "var(--text-muted)" }}>
         {session.session_type === "passive" ? (
           <span>{session.event_count.toLocaleString()} keystrokes</span>
         ) : (
@@ -223,14 +226,14 @@ function SessionRow({ session }: { session: SessionSummary }) {
   );
 }
 
-function sessionTypeMeta(type: string): { label: string; className: string } {
+function sessionTypeMeta(type: string): { label: string; className: string; style: React.CSSProperties } {
   switch (type) {
     case "practice":
-      return { label: "Practice", className: "bg-indigo-500/15 text-indigo-300" };
+      return { label: "Practice", className: "", style: { background: "var(--accent-bg)", color: "var(--accent)" } };
     case "drill":
-      return { label: "Drill", className: "bg-violet-500/15 text-violet-300" };
+      return { label: "Drill", className: "", style: { background: "var(--bg-subtle)", color: "var(--text-secondary)" } };
     default:
-      return { label: "Passive", className: "bg-emerald-500/15 text-emerald-300" };
+      return { label: "Passive", className: "", style: { background: "var(--bg-subtle)", color: "var(--text-muted)" } };
   }
 }
 
@@ -252,12 +255,16 @@ function Kpi({
   tone?: "good" | "muted";
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
-      <p className="text-xs uppercase tracking-wider text-slate-500">{label}</p>
+    <div
+      className="rounded-2xl border p-4"
+      style={{ borderColor: "var(--border-strong)", background: "var(--bg-surface)" }}
+    >
+      <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </p>
       <p
-        className={`mt-2 text-2xl font-bold tabular-nums ${
-          tone === "good" ? "text-emerald-300" : "text-slate-100"
-        }`}
+        className={`mt-2 text-2xl font-bold tabular-nums ${tone === "good" ? "text-emerald-300" : ""}`}
+        style={tone !== "good" ? { color: "var(--text-primary)" } : undefined}
       >
         {value}
       </p>
@@ -275,9 +282,14 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
+    <section
+      className="rounded-2xl border p-5"
+      style={{ borderColor: "var(--border-strong)", background: "var(--bg-surface)" }}
+    >
       <div className="mb-4 flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-slate-300">{title}</h3>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+          {title}
+        </h3>
         {hint && <InfoDot text={hint} />}
       </div>
       {children}
@@ -288,10 +300,20 @@ function Card({
 function InfoDot({ text }: { text: string }) {
   return (
     <span className="group relative inline-flex">
-      <span className="flex h-4 w-4 cursor-default items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-slate-400 transition group-hover:border-indigo-400/60 group-hover:text-indigo-300">
+      <span
+        className="flex h-4 w-4 cursor-default items-center justify-center rounded-full border text-[10px] font-bold transition group-hover:border-indigo-400/60 group-hover:text-indigo-300"
+        style={{ borderColor: "var(--border-strong)", color: "var(--text-muted)" }}
+      >
         i
       </span>
-      <span className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/95 p-3 text-xs leading-relaxed text-slate-300 opacity-0 shadow-2xl backdrop-blur transition-opacity duration-150 group-hover:opacity-100">
+      <span
+        className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-64 -translate-x-1/2 rounded-xl border p-3 text-xs leading-relaxed opacity-0 shadow-2xl backdrop-blur transition-opacity duration-150 group-hover:opacity-100"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--bg-elevated)",
+          color: "var(--text-primary)",
+        }}
+      >
         {text}
       </span>
     </span>
@@ -299,5 +321,5 @@ function InfoDot({ text }: { text: string }) {
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-slate-500">{children}</p>;
+  return <p className="text-sm" style={{ color: "var(--text-muted)" }}>{children}</p>;
 }

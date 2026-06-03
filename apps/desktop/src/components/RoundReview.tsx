@@ -21,12 +21,15 @@ export function RoundReview({ text, misses }: Props) {
   }
 
   return (
-    <div className="animate-fade-in-up space-y-4 rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+    <div
+      className="animate-fade-in-up space-y-4 rounded-2xl border p-5"
+      style={{ borderColor: "var(--border)", background: "var(--bg-elevated)" }}
+    >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-300">
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
           Where you went wrong
         </h3>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
           {misses.length === 0
             ? "Clean run — no misses"
             : `${misses.length} miss${misses.length === 1 ? "" : "es"}`}
@@ -44,8 +47,12 @@ export function RoundReview({ text, misses }: Props) {
               key={i}
               className={
                 missed
-                  ? "rounded bg-rose-500/20 text-rose-300 underline decoration-rose-400 decoration-2 underline-offset-4"
-                  : "text-slate-400"
+                  ? "rounded underline decoration-2 underline-offset-4"
+                  : ""
+              }
+              style={missed
+                ? { background: "var(--char-error-bg)", color: "var(--char-error)", textDecorationColor: "var(--char-error)" }
+                : { color: "var(--text-secondary)" }
               }
               title={
                 missed
@@ -67,14 +74,15 @@ export function RoundReview({ text, misses }: Props) {
           {misses.map((m, i) => (
             <li
               key={i}
-              className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-xs"
+              className="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs"
+              style={{ borderColor: "var(--border)", background: "var(--bg-subtle)" }}
             >
-              <span className="text-slate-500">wanted</span>
-              <span className="font-mono text-emerald-300">
+              <span style={{ color: "var(--text-muted)" }}>wanted</span>
+              <span className="font-mono" style={{ color: "var(--accent)" }}>
                 {display(m.expected)}
               </span>
-              <span className="text-slate-500">· typed</span>
-              <span className="font-mono text-rose-300">{display(m.typed)}</span>
+              <span style={{ color: "var(--text-muted)" }}>· typed</span>
+              <span className="font-mono" style={{ color: "var(--char-error)" }}>{display(m.typed)}</span>
             </li>
           ))}
         </ul>

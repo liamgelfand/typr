@@ -128,16 +128,16 @@ export function TypingTest({ text, onComplete, label }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-xs text-slate-400">
+      <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
         <span className="font-medium uppercase tracking-wider">
           {label ?? "Type the text below"}
         </span>
         <div className="flex items-center gap-4 font-mono">
           <span>
-            <span className="text-slate-200">{liveWpm}</span> wpm
+            <span style={{ color: "var(--text-primary)" }}>{liveWpm}</span> wpm
           </span>
           <span>
-            <span className={liveErrors > 0 ? "text-rose-400" : "text-slate-200"}>
+            <span style={{ color: liveErrors > 0 ? "var(--char-error)" : "var(--text-primary)" }}>
               {liveErrors}
             </span>{" "}
             err
@@ -151,10 +151,21 @@ export function TypingTest({ text, onComplete, label }: Props) {
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className={`typing-surface relative rounded-2xl border bg-slate-900/60 p-7 text-2xl shadow-2xl backdrop-blur transition ${
-          wrong ? "border-rose-500/40" : "border-white/10"
-        } ${focused ? "ring-2 ring-indigo-500/40" : ""}`}
-        style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+        className={`typing-surface relative rounded-2xl border p-7 text-2xl backdrop-blur transition ${
+          wrong ? "border-rose-500/40" : ""
+        } ${focused ? "ring-2" : ""}`}
+        style={{
+          borderColor: wrong ? undefined : "var(--border)",
+          background: "var(--bg-elevated)",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          ...(focused
+            ? {
+                outlineColor: "var(--accent-border)",
+                boxShadow: "0 0 0 2px var(--accent-border)",
+              }
+            : {}),
+        }}
       >
         {chars.map((ch, i) => {
           let cls = "typing-char ";
@@ -169,16 +180,16 @@ export function TypingTest({ text, onComplete, label }: Props) {
         })}
 
         {!focused && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-950/60 text-sm text-slate-300 backdrop-blur-sm">
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl backdrop-blur-sm text-sm" style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", opacity: 0.92 }}>
             Click here and start typing
           </div>
         )}
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+      <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--bg-subtle)" }}>
         <div
-          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-[width] duration-150"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full transition-[width] duration-150"
+          style={{ width: `${progress}%`, background: "var(--accent)" }}
         />
       </div>
     </div>

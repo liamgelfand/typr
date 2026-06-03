@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { WeakBigram } from "../types";
 
 const ROWS = [
@@ -7,17 +8,24 @@ const ROWS = [
   ["z", "x", "c", "v", "b", "n", "m"],
 ];
 
+const TOOLTIP_GAP = 8;
+
 interface Props {
   bigrams: WeakBigram[];
 }
 
 interface KeyData {
-  /** Peak error rate (0..1) across pairs that include this key. */
   peakRate: number;
   errors: number;
   attempts: number;
-  /** Pairs that include this key, worst first. */
   pairs: WeakBigram[];
+}
+
+interface HoverState {
+  char: string;
+  data?: KeyData;
+  placement: "above" | "below";
+  anchor: DOMRect;
 }
 
 export function KeyboardHeatmap({ bigrams }: Props) {
@@ -44,72 +52,156 @@ export function KeyboardHeatmap({ bigrams }: Props) {
     ...Object.values(byChar).map((d) => d.peakRate)
   );
 
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [hover, setHover] = useState<HoverState | null>(null);
+  const anchorRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Interpolate from a calm slate (no errors) to a hot rose (high error rate).
+  const syncHoverRect = useCallback(() => {
+    setHover((prev) => {
+      if (!prev) return null;
+      const el = anchorRefs.current[prev.char];
+      if (!el) return null;
+      return { ...prev, anchor: el.getBoundingClientRect() };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!hover) return;
+    window.addEventListener("scroll", syncHoverRect, true);
+    window.addEventListener("resize", syncHoverRect);
+    return () => {
+      window.removeEventListener("scroll", syncHoverRect, true);
+      window.removeEventListener("resize", syncHoverRect);
+    };
+  }, [hover, syncHoverRect]);
+
   function heatStyle(rate: number): React.CSSProperties {
     const t = Math.min(1, rate / maxRate);
     if (rate === 0) {
-      return { background: "rgba(255,255,255,0.04)", color: "#64748b" };
+      return {
+        background: "var(--heatmap-key-bg)",
+        color: "var(--heatmap-key-text)",
+      };
     }
     return {
       background: `rgba(244, 63, 94, ${0.12 + t * 0.6})`,
-      color: t > 0.45 ? "#fff" : "#cbd5e1",
+      color:
+        t > 0.45
+          ? "var(--heatmap-key-text-hot)"
+          : "var(--heatmap-key-text-warm)",
       boxShadow: t > 0.6 ? "0 0 18px rgba(244,63,94,0.35)" : undefined,
     };
   }
 
+  function showTooltip(char: string, rowIndex: number) {
+    const el = anchorRefs.current[char];
+    if (!el) return;
+    setHover({
+      char,
+      data: byChar[char],
+      placement: rowIndex === 0 ? "below" : "above",
+      anchor: el.getBoundingClientRect(),
+    });
+  }
+
   return (
-    <div className="flex flex-col items-center gap-1.5 py-2">
-      {ROWS.map((row, ri) => (
-        <div key={ri} className="flex gap-1.5" style={{ paddingLeft: ri * 16 }}>
-          {row.map((key) => {
-            const data = byChar[key];
-            const rate = data?.peakRate ?? 0;
-            return (
-              <div key={key} className="relative">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition"
-                  style={heatStyle(rate)}
-                  onMouseEnter={() => setHovered(key)}
-                  onMouseLeave={() => setHovered((h) => (h === key ? null : h))}
-                >
-                  {key}
-                </div>
-                {hovered === key && (
-                  <KeyTooltip char={key} data={data} />
-                )}
-              </div>
-            );
-          })}
+    <div className="w-full">
+      <div className="overflow-x-auto">
+        <div className="flex flex-col items-center gap-1.5 min-w-fit mx-auto px-2 py-2">
+          {ROWS.map((row, ri) => (
+            <div key={ri} className="flex gap-1.5" style={{ paddingLeft: ri * 16 }}>
+              {row.map((key) => {
+                const data = byChar[key];
+                const rate = data?.peakRate ?? 0;
+                return (
+                  <div
+                    key={key}
+                    ref={(el) => {
+                      anchorRefs.current[key] = el;
+                    }}
+                    className="relative"
+                    onMouseEnter={() => showTooltip(key, ri)}
+                    onMouseLeave={() =>
+                      setHover((h) => (h?.char === key ? null : h))
+                    }
+                  >
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition"
+                      style={heatStyle(rate)}
+                    >
+                      {key}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
-      ))}
-      <p className="mt-3 text-center text-xs text-slate-500">
+      </div>
+      <p className="mt-3 text-center text-xs" style={{ color: "var(--text-muted)" }}>
         Warmer keys show up in more of your mistyped letter-pairs. Hover a key
         for the breakdown.
       </p>
+      {hover &&
+        createPortal(
+          <KeyTooltip
+            char={hover.char}
+            data={hover.data}
+            placement={hover.placement}
+            anchor={hover.anchor}
+          />,
+          document.body
+        )}
     </div>
   );
 }
 
-function KeyTooltip({ char, data }: { char: string; data?: KeyData }) {
+function KeyTooltip({
+  char,
+  data,
+  placement,
+  anchor,
+}: {
+  char: string;
+  data?: KeyData;
+  placement: "above" | "below";
+  anchor: DOMRect;
+}) {
+  const below = placement === "below";
+  const centerX = anchor.left + anchor.width / 2;
+  const top = below ? anchor.bottom + TOOLTIP_GAP : anchor.top - TOOLTIP_GAP;
+  const transform = below ? "translate(-50%, 0)" : "translate(-50%, -100%)";
+
   return (
-    <div className="absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-xl border border-white/10 bg-slate-950/95 p-3 text-left shadow-2xl backdrop-blur">
+    <div
+      className="pointer-events-none fixed z-[9999] w-56 rounded-xl border p-3 text-left shadow-lg backdrop-blur"
+      style={{
+        left: centerX,
+        top,
+        transform,
+        borderColor: "var(--border)",
+        background: "var(--bg-elevated)",
+      }}
+    >
       <div className="flex items-baseline justify-between">
-        <span className="font-mono text-base font-semibold text-slate-100">
+        <span
+          className="font-mono text-base font-semibold"
+          style={{ color: "var(--text-primary)" }}
+        >
           {char.toUpperCase()}
         </span>
         {data ? (
-          <span className="text-xs text-rose-300">
+          <span className="text-xs" style={{ color: "var(--char-error)" }}>
             {(data.peakRate * 100).toFixed(0)}% peak miss
           </span>
         ) : (
-          <span className="text-xs text-emerald-300">clean</span>
+          <span className="text-xs" style={{ color: "var(--accent)" }}>
+            clean
+          </span>
         )}
       </div>
       {data ? (
         <>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
             {data.errors} miss{data.errors === 1 ? "" : "es"} across{" "}
             {data.attempts} attempt{data.attempts === 1 ? "" : "s"} in pairs
             using “{char}”.
@@ -120,8 +212,10 @@ function KeyTooltip({ char, data }: { char: string; data?: KeyData }) {
                 key={p.bigram}
                 className="flex items-center justify-between text-xs"
               >
-                <span className="font-mono text-indigo-300">{p.bigram}</span>
-                <span className="text-slate-400">
+                <span className="font-mono" style={{ color: "var(--accent)" }}>
+                  {p.bigram}
+                </span>
+                <span style={{ color: "var(--text-muted)" }}>
                   {(p.error_rate * 100).toFixed(0)}% · {p.error_count}/
                   {p.attempt_count}
                 </span>
@@ -130,11 +224,18 @@ function KeyTooltip({ char, data }: { char: string; data?: KeyData }) {
           </ul>
         </>
       ) : (
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
           No mistyped pairs involve this key yet. Keep typing.
         </p>
       )}
-      <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 border-b border-r border-white/10 bg-slate-950/95" />
+      <span
+        className={`absolute left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 ${
+          below
+            ? "bottom-full translate-y-1 border-l border-t"
+            : "top-full -translate-y-1 border-b border-r"
+        }`}
+        style={{ borderColor: "var(--border)", background: "var(--bg-elevated)" }}
+      />
     </div>
   );
 }

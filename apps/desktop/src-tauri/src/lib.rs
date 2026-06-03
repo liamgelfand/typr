@@ -94,8 +94,19 @@ pub fn run() {
                 let quit = MenuItem::with_id(app, "quit", "Quit Typr", true, None::<&str>)?;
                 let menu = Menu::with_items(app, &[&pause, &quit])?;
 
+                // Square Forest Ink icon for tray (rounded icon stays on the window).
+                let tray_icon = match tauri::image::Image::from_bytes(include_bytes!(
+                    "../icons/tray-32.png"
+                )) {
+                    Ok(icon) => icon,
+                    Err(e) => {
+                        eprintln!("typr: tray icon load failed ({e}), using window icon");
+                        app.default_window_icon().unwrap().clone()
+                    }
+                };
+
                 let _tray = TrayIconBuilder::new()
-                    .icon(app.default_window_icon().unwrap().clone())
+                    .icon(tray_icon)
                     .menu(&menu)
                     .tooltip("Typr — recording")
                     .on_menu_event(|app, event| {

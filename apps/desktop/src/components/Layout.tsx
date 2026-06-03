@@ -32,10 +32,19 @@ export function Layout() {
       : { dot: "bg-emerald-400 animate-pulse", text: "Recording", tone: "text-emerald-300" };
 
   return (
-    <div className="flex h-screen text-slate-200">
-      <aside className="flex w-60 flex-col border-r border-white/5 bg-slate-950/40 px-4 py-6 backdrop-blur">
+    <div className="flex h-screen" style={{ color: "var(--text-primary)" }}>
+      <aside
+        className="flex w-60 flex-col border-r px-4 py-6 backdrop-blur"
+        style={{
+          borderColor: "var(--border)",
+          background: "color-mix(in srgb, var(--bg-base) 60%, transparent)",
+        }}
+      >
         <div className="mb-8 flex items-center gap-2.5 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 font-bold text-white shadow-lg shadow-indigo-500/30">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white"
+            style={{ background: "var(--accent)", color: "var(--bg-base)" }}
+          >
             T
           </div>
           <span className="text-lg font-semibold tracking-tight">Typr</span>
@@ -50,10 +59,13 @@ export function Layout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                   isActive
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                    ? "bg-white/10 shadow-sm"
+                    : "hover:bg-white/5"
                 }`
               }
+              style={({ isActive }) => ({
+                color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+              })}
             >
               <Icon />
               {label}
@@ -65,14 +77,15 @@ export function Layout() {
           onClick={togglePause}
           disabled={!capture?.running}
           title={capture?.running ? "Toggle capture pause" : "Capture is off"}
-          className="mt-auto flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2.5 text-left text-xs transition hover:bg-white/10 disabled:cursor-default disabled:hover:bg-white/5"
+          className="mt-auto flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-xs transition hover:bg-white/5 disabled:cursor-default disabled:hover:bg-transparent"
+          style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
         >
           <span className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${status.dot}`} />
             <span className={status.tone}>{status.text}</span>
           </span>
           {capture?.running && (
-            <span className="text-slate-500">
+            <span style={{ color: "var(--text-faint)" }}>
               {capture.paused ? "Resume" : "Pause"}
             </span>
           )}

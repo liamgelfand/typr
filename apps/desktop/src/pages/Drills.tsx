@@ -83,14 +83,15 @@ export function Drills() {
         <h2 className="text-3xl font-bold tracking-tight">Drills</h2>
         <PracticeVsDrills active="drill" />
         <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-10 text-center">
-          <p className="text-slate-300">No drills due right now. 🎉</p>
-          <p className="mt-2 text-sm text-slate-500">
+          <p style={{ color: "var(--text-primary)" }}>No drills due right now.</p>
+          <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>
             Drills are generated from your weak bigrams. Do a few Practice rounds
             (or let passive capture build a profile), then come back.
           </p>
           <button
             onClick={load}
-            className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:opacity-90"
+            className="mt-6 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
+            style={{ background: "var(--accent)", color: "var(--bg-base)" }}
           >
             Generate from profile
           </button>
@@ -104,19 +105,19 @@ export function Drills() {
       <header className="mb-8 flex items-end justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Drills</h2>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
             Flashcard-style review: each card hammers one specific weak pair,
             and how well you type it decides when that pair comes back. We grade
             every run automatically — just type.
           </p>
         </div>
-        <div className="text-right text-xs text-slate-500">
+        <div className="text-right text-xs" style={{ color: "var(--text-muted)" }}>
           <p>
             Card {index + 1} / {cards.length}
           </p>
           <p className="mt-1">
             focus{" "}
-            <span className="rounded-md bg-indigo-500/15 px-2 py-0.5 font-mono text-indigo-300">
+            <span className="rounded-md px-2 py-0.5 font-mono" style={{ background: "var(--accent-bg)", color: "var(--accent)" }}>
               {card.target_keys}
             </span>
           </p>
@@ -145,10 +146,10 @@ export function Drills() {
               />
             </div>
             <div className="text-right">
-              <p className="text-xs uppercase tracking-wider text-slate-500">
+              <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                 Scheduled
               </p>
-              <p className="mt-1 text-sm text-emerald-300">
+              <p className="mt-1 text-sm" style={{ color: "var(--accent)" }}>
                 {gradeLabel(qualityFromPerformance(stats.accuracy, stats.errors))}
               </p>
             </div>
@@ -180,11 +181,10 @@ function Stat({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{label}</p>
       <p
-        className={`mt-1 text-2xl font-bold tabular-nums ${
-          accent ? "text-indigo-300" : danger ? "text-rose-400" : "text-slate-100"
-        }`}
+        className="mt-1 text-2xl font-bold tabular-nums"
+        style={{ color: accent ? "var(--accent)" : danger ? "var(--char-error)" : "var(--text-primary)" }}
       >
         {value}
       </p>

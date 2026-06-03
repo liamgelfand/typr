@@ -8,6 +8,7 @@ import { Drills } from "./pages/Drills";
 import { Onboarding } from "./pages/Onboarding";
 import { Practice } from "./pages/Practice";
 import { Settings } from "./pages/Settings";
+import { ThemeProvider } from "./ThemeContext";
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -21,7 +22,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       <UpdateNotice />
       {!ready ? (
         <div className="flex min-h-screen items-center justify-center text-slate-500">
@@ -42,6 +43,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       )}
-    </>
+    </ThemeProvider>
   );
 }

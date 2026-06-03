@@ -60,7 +60,7 @@ export function Practice() {
     <div className="mx-auto max-w-3xl">
       <header className="mb-6">
         <h2 className="text-3xl font-bold tracking-tight">Practice</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Free-flowing lines built from real words, weighted toward the
           letter-pairs you miss most. A wrong key is marked instantly and you
           must hit the right key to move on — no take-backs.
@@ -80,12 +80,13 @@ export function Practice() {
             <button
               onClick={next}
               autoFocus
-              className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition hover:opacity-90"
+              className="rounded-xl px-6 py-2.5 text-sm font-semibold transition hover:opacity-90"
+              style={{ background: "var(--accent)", color: "var(--bg-base)" }}
             >
               Next line →
             </button>
           </div>
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs" style={{ color: "var(--text-muted)" }}>
             Your score stays pinned above so you can compare it with the next
             round.
           </p>
@@ -112,12 +113,15 @@ function ScoreBar({
   round: number;
 }) {
   return (
-    <div className="animate-fade-in-up mb-6 rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+    <div
+      className="animate-fade-in-up mb-6 rounded-2xl border p-5"
+      style={{ borderColor: "var(--border-strong)", background: "var(--bg-elevated)" }}
+    >
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
           Last round{prev ? " · vs previous" : ""}
         </p>
-        <p className="text-xs text-slate-500">Round {round}</p>
+        <p className="text-xs" style={{ color: "var(--text-muted)" }}>Round {round}</p>
       </div>
       <div className="grid grid-cols-3 gap-8">
         <Stat
@@ -170,12 +174,13 @@ function Stat({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{label}</p>
       <div className="mt-1 flex items-baseline gap-2">
         <p
-          className={`text-2xl font-bold tabular-nums ${
-            accent ? "text-indigo-300" : danger ? "text-rose-400" : "text-slate-100"
-          }`}
+          className="text-2xl font-bold tabular-nums"
+          style={{
+            color: accent ? "var(--accent)" : danger ? "var(--char-error)" : "var(--text-primary)",
+          }}
         >
           {value}
         </p>
@@ -203,7 +208,8 @@ function Delta({
   const sign = up ? "+" : "−";
   return (
     <span
-      className={`text-xs font-semibold ${good ? "text-emerald-400" : "text-rose-400"}`}
+      className="text-xs font-semibold"
+      style={{ color: good ? "var(--accent)" : "var(--char-error)" }}
     >
       {up ? "▲" : "▼"} {sign}
       {Math.abs(delta).toFixed(digits)}

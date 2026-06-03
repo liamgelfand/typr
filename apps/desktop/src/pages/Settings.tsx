@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
+import { useTheme } from "../ThemeContext";
 import type { CaptureStatus } from "../types";
 
 export function Settings() {
+  const { theme, toggle: toggleTheme } = useTheme();
   const [capture, setCapture] = useState<CaptureStatus | null>(null);
   const [blocklist, setBlocklist] = useState<string[]>([]);
   const [newPattern, setNewPattern] = useState("");
@@ -82,21 +84,46 @@ export function Settings() {
     <div className="mx-auto max-w-2xl space-y-6">
       <header>
         <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Everything stays on this device.
         </p>
       </header>
 
+      <Section title="Appearance">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">Theme</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
+              {theme === "dark" ? "Dark mode" : "Light mode"}
+            </p>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium transition hover:bg-white/10"
+          >
+            {theme === "dark" ? (
+              <>
+                <IconSun /> Switch to light
+              </>
+            ) : (
+              <>
+                <IconMoon /> Switch to dark
+              </>
+            )}
+          </button>
+        </div>
+      </Section>
+
       <Section title="Passive capture">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Typr learns from your everyday typing in the background. Turn it off
             anytime — practice and drills still work.
           </p>
           <Toggle on={!!capture?.running} onClick={toggleCapture} />
         </div>
         {capture?.running && (
-          <p className="mt-3 text-xs text-emerald-300">
+          <p className="mt-3 text-xs" style={{ color: "var(--accent)" }}>
             {capture.paused
               ? "Capture is paused."
               : "Recording. Pause quickly with the sidebar control or your global hotkey (Ctrl/Cmd+Shift+P)."}
@@ -105,7 +132,7 @@ export function Settings() {
       </Section>
 
       <Section title="App blocklist">
-        <p className="mb-3 text-sm text-slate-400">
+        <p className="mb-3 text-sm" style={{ color: "var(--text-secondary)" }}>
           Windows whose title contains any of these terms are never recorded.
         </p>
         <ul className="space-y-1.5">
@@ -114,10 +141,11 @@ export function Settings() {
               key={p}
               className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2 text-sm"
             >
-              <span className="font-mono text-slate-300">{p}</span>
+              <span className="font-mono" style={{ color: "var(--text-primary)" }}>{p}</span>
               <button
                 onClick={() => removePattern(p)}
-                className="text-xs text-rose-400 transition hover:text-rose-300"
+                className="text-xs transition"
+                style={{ color: "var(--char-error)" }}
               >
                 Remove
               </button>
@@ -130,7 +158,12 @@ export function Settings() {
             onChange={(e) => setNewPattern(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addPattern()}
             placeholder="e.g. Incognito"
-            className="flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm outline-none transition focus:border-indigo-500/60"
+            className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none transition focus:border-emerald-500/50"
+            style={{
+              borderColor: "var(--border-strong)",
+              background: "var(--bg-elevated)",
+              color: "var(--text-primary)",
+            }}
           />
           <button
             onClick={addPattern}
@@ -142,9 +175,9 @@ export function Settings() {
       </Section>
 
       <Section title="Your data">
-        <p className="mb-3 text-sm text-slate-400">
-          Export everything Typr has learned — bigram stats, sessions and your
-          blocklist — as a single JSON file. It never leaves this device unless
+        <p className="mb-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+          Export everything Typr has learned. Bigram stats, sessions and your
+          blocklist as a single JSON file. It never leaves this device unless
           you share it.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -191,8 +224,16 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
-      <h3 className="mb-3 text-sm font-semibold text-slate-300">{title}</h3>
+    <section
+      className="rounded-2xl border p-5"
+      style={{
+        borderColor: "var(--border-strong)",
+        background: "var(--bg-surface)",
+      }}
+    >
+      <h3 className="mb-3 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+        {title}
+      </h3>
       {children}
     </section>
   );
@@ -214,5 +255,22 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
         }`}
       />
     </button>
+  );
+}
+
+function IconSun() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function IconMoon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
   );
 }
